@@ -120,10 +120,11 @@ Copy-Item -LiteralPath (Join-Path $DshHome 'AGENTS.md') -Destination (Join-Path 
 Write-Step 'Set user environment variables'
 [Environment]::SetEnvironmentVariable('DSH_HOME', $DshHome, 'User')
 [Environment]::SetEnvironmentVariable('DSH_AGENTS_HOME', $AgentsDir, 'User')
+[Environment]::SetEnvironmentVariable('MAGPIE_GATEWAY_KEY', 'magpie', 'User')
 
 if (-not $SkipMagpie) {
     Write-Step 'Install and start Magpie gateway'
-    $magpieDir = Join-Path (Split-Path -Qualifier $InstallDir) 'apps\magpie'
+    $magpieDir = Join-Path (Split-Path -Parent $InstallDir) 'apps\magpie'
     if (Test-Path -LiteralPath $magpieDir) {
         Move-Item -LiteralPath $magpieDir -Destination "$magpieDir.bak-$stamp" -Force
     }
