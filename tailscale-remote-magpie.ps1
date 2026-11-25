@@ -142,22 +142,22 @@ Log ("Remote provider URL: " + $providerUrl)
 $providerList = (& $magpie providers 2>$null | Out-String)
 $providerPattern = "(?m)^\s*Remote magpie\s+" + [regex]::Escape($ProviderId) + "\s"
 if ($providerList -match $providerPattern) {
-  Log "Provider exists; updating key and refreshing."
-  & $magpie provider key $ProviderId $GatewayKey 2>$null | Out-Host
-  & $magpie provider refresh $ProviderId 2>$null | Out-Host
-} else {
-  $addArgs = @("provider", "add", "remote-magpie", $GatewayKey, "url=$providerUrl", "id=$ProviderId")
-  $out = & $magpie @addArgs 2>$null
-  $out | Out-Host
-  if ($LASTEXITCODE -ne 0) {
-    $joined = ($out | Out-String)
-    if ($joined -match "already added|already exists") {
-      Log "Provider exists; updating key and refreshing."
-      & $magpie provider key $ProviderId $GatewayKey 2>$null | Out-Host
-      & $magpie provider refresh $ProviderId 2>$null | Out-Host
-    } else {
-      Fail ("provider add failed: " + $joined)
-    }
+  Log "Provider exists; removing old entry before re-adding with the new key."
+  & $magpie provider rm $ProviderId 2>$null | Out-Host
+}
+$addArgs = @("provider", "add", "remote-magpie", $GatewayKey, "url=$providerUrl", "id=$ProviderId")
+$out = & $magpie @addArgs 2>$null
+$out | Out-Host
+if ($LASTEXITCODE -ne 0) {
+  $joined = ($out | Out-String)
+  if ($joined -match "already added|already exists") {
+    Log "Provider already exists; removing and retrying."
+    & $magpie provider rm $ProviderId 2>$null | Out-Host
+    $out = & $magpie @addArgs 2>$null
+    $out | Out-Host
+    if ($LASTEXITCODE -ne 0) { Fail ("provider add failed after retry: " + (($out | Out-String))) }
+  } else {
+    Fail ("provider add failed: " + $joined)
   }
 }
 & $magpie provider refresh $ProviderId 2>$null | Out-Host
