@@ -6,7 +6,7 @@
 ## 一条命令（在 WorkBuddy 里执行）
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -Command "iwr -UseBasicParsing https://github.com/574210187-ship-it/dsh-workbuddy-kit/releases/latest/download/bootstrap.ps1 | iex"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$p=Join-Path $env:TEMP 'dsh-workbuddy-kit-bootstrap.ps1'; iwr -UseBasicParsing 'https://github.com/574210187-ship-it/dsh-workbuddy-kit/releases/latest/download/bootstrap.ps1' -OutFile $p; & $p"
 ```
 
 ## 它会做什么
