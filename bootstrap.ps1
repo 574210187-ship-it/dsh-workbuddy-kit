@@ -107,9 +107,10 @@ $phoneTarget = Join-Path $DshHome 'bundles\dsh-phone-remote'
 if (Test-Path -LiteralPath $phoneLink) { Remove-Item -LiteralPath $phoneLink -Recurse -Force }
 New-Item -ItemType Junction -Path $phoneLink -Target $phoneTarget | Out-Null
 
-# Local Magpie gateway key (fixed non-secret value used by the bundled settings)
-$envPath = Join-Path $DshHome '.env'
-[IO.File]::WriteAllText($envPath, "MAGPIE_GATEWAY_KEY=magpie`r`n", (New-Object Text.UTF8Encoding($false)))
+# Keep the local process environment consistent with the persisted user environment
+$env:DSH_HOME = $DshHome
+$env:DSH_AGENTS_HOME = $AgentsDir
+$env:MAGPIE_GATEWAY_KEY = 'magpie'
 
 # Make every DSH instruction root contain the same AGENTS.md
 Copy-Item -LiteralPath (Join-Path $DshHome 'AGENTS.md') -Destination (Join-Path $AgentsDir 'AGENTS.md') -Force
